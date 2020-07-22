@@ -1,0 +1,568 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a prototype to display Sentry's API using Swagger.",
+    "version": "1.0.5",
+    "title": "API Reference",
+    "termsOfService": "http://sentry.io/terms/",
+    "contact": { "email": "partners@sentry.io" },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "sentry.io",
+  "tags": [
+    {
+      "name": "Teams",
+      "description": "Everything about Teams.",
+      "externalDocs": {
+        "description": "Found an error? Let us know.",
+        "url": "https://github.com/getsentry/sentry-docs/issues/new/?title=API%20Documentation%20Error:%20/api/teams/&template=api_error_template.md"
+      }
+    }
+  ],
+  "schemes": ["https"],
+  "paths": {
+    "/api/0/organizations/{organization_slug}/teams/": {
+      "get": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Returns a list of teams bound to a organization.",
+        "operationId": "List an Organization's Teams",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization for which the teams should be listed.",
+            "required": true,
+            "type": "string",
+            "example": "organization_slug"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Team" }
+            }
+          },
+          "400": { "description": "Invalid organization_slug value." }
+        },
+        "security": [{ "auth_token": [] }]
+      },
+      "post": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Create a new team bound to an organization. Only the name of the team is needed to create it, the slug can be auto generated.",
+        "operationId": "Create a New Team",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug ",
+            "in": "path",
+            "description": "The slug of the organization the team should be created for.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "description": "The name of the team.",
+                  "type": "string",
+                  "example": "Ancient Gabelers"
+                },
+                "slug": {
+                  "description": "The optional slug for this team. If not provided it will be auto generated from the name",
+                  "type": "string",
+                  "example": "ancient-gabelers"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": { "$ref": "#/definitions/Team" }
+          }
+        },
+        "security": [{ "auth_token": [] }]
+      }
+    },
+    "/api/0/teams/{organization_slug}/{team_slug}/": {
+      "get": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Return details on an individual team.",
+        "operationId": "Retrieve a Team",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to get.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "400": {
+            "description": "Invalid organization_slug or team_slug values."
+          }
+        },
+        "security": [{ "auth_token": [] }]
+      },
+      "put": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Update various attributes and configurable settings for the given team.",
+        "operationId": "Update a Team",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to get.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "description": "The new name for the team.",
+                  "type": "string",
+                  "example": "The Inflated Philosophers"
+                },
+                "slug": {
+                  "description": "A new slug for the team. It has to be unique and available.",
+                  "type": "string",
+                  "example": "the-inflated-philosophers"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "examples": {
+              "application/json": {
+                "avatar": {
+                  "avatarType": "letter_avatar",
+                  "avatarUuid": null
+                },
+                "dateCreated": "2018-11-06T21:20:08.115Z",
+                "hasAccess": true,
+                "id": "3",
+                "isMember": false,
+                "isPending": false,
+                "memberCount": 1,
+                "name": "The Inflated Philosophers",
+                "slug": "the-inflated-philosophers"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          },
+          "404": { "description": "Not found." }
+        },
+        "security": [{ "auth_token": [] }]
+      },
+      "delete": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Schedules a team for deletion.\n\nNote: Deletion happens asynchronously and therefor is not immediate. However once deletion has begun the state of a project changes and will be hidden from most public views.",
+        "operationId": "Delete a Team",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to get.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": { "description": "Success." },
+          "400": {
+            "description": "Invalid organization_slug or team_slug value."
+          },
+          "404": { "description": "Team not found" }
+        },
+        "security": [{ "auth_token": [] }]
+      }
+    },
+    "/api/0/teams/{organization_slug}/{team_slug}/projects/": {
+      "get": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Return a list of projects bound to a team.",
+        "operationId": "List a Team's Projects",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to get.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Project"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid organization_slug or team_slug values."
+          }
+        },
+        "security": [{ "auth_token": [] }]
+      },
+      "post": {
+        "tags": ["Teams"],
+        "summary": "",
+        "description": "Create a new project bound to a team.",
+        "operationId": "Create a New Project",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to create a new project for.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "project",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {
+                  "description": "The name for the new project.",
+                  "type": "string",
+                  "example": "The Spoiled Yoghurt"
+                },
+                "slug": {
+                  "description": "Optionally a slug for the new project. If it’s not provided a slug is generated from the name.",
+                  "type": "string",
+                  "example": "the-spoiled-yoghurt"
+                }
+              }
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created.",
+            "schema": { "$ref": "#/definitions/Project" },
+            "example": {
+              "avatar": {
+                "avatarType": "letter_avatar",
+                "avatarUuid": null
+              },
+              "color": "#bf6e3f",
+              "dateCreated": "2018-11-06T21:20:08.064Z",
+              "features": [
+                "servicehooks",
+                "sample-events",
+                "data-forwarding",
+                "rate-limits",
+                "minidump"
+              ],
+              "firstEvent": null,
+              "hasAccess": true,
+              "id": "4",
+              "isBookmarked": false,
+              "isInternal": false,
+              "isMember": true,
+              "isPublic": false,
+              "name": "The Spoiled Yoghurt",
+              "platform": null,
+              "slug": "the-spoiled-yoghurt",
+              "status": "active"
+            }
+          }
+        },
+        "security": [{ "auth_token": [] }]
+      }
+    },
+    "/api/0/teams/{organization_slug}/{team_slug}/stats/": {
+      "get": {
+        "tags": ["Teams"],
+        "summary": "Caution\nThis endpoint may change in the future without notice.",
+        "description": "Return a set of points representing a normalized timestamp and the number of events seen in the period.\n\nQuery ranges are limited to Sentry’s configured time-series resolutions.",
+        "operationId": "Retrieve Event Counts for a Team",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "organization_slug",
+            "in": "path",
+            "description": "The slug of the organization the team belongs to.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "team_slug",
+            "in": "path",
+            "description": "The slug of the team to get.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "stat",
+            "in": "query",
+            "description": "the name of the stat to query `(\"received\", \"rejected\")`",
+            "required": false,
+            "type": "string",
+            "enum": ["received", "rejected"]
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "A timestamp to set the start of the query in seconds since UNIX epoch.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "description": "A timestamp to set the end of the query in seconds since UNIX epoch.",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "resolution",
+            "in": "query",
+            "description": "An explicit resolution to search for (one of `10s`, `1h`, and `1d`).",
+            "required": false,
+            "type": "string",
+            "enum": ["10s", "1h", "1d"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success.",
+            "schema": {
+              "example": [
+                [1541455200.0, 3302],
+                [1541458800.0, 3832],
+                [1541462400.0, 3669],
+                [1541466000.0, 3533],
+                [1541469600.0, 3499],
+                [1541473200.0, 3201],
+                [1541476800.0, 3769],
+                [1541480400.0, 2706],
+                [1541484000.0, 2698],
+                [1541487600.0, 3747],
+                [1541491200.0, 3261],
+                [1541494800.0, 2860],
+                [1541498400.0, 4350],
+                [1541502000.0, 2924],
+                [1541505600.0, 3389],
+                [1541509200.0, 2931],
+                [1541512800.0, 3132],
+                [1541516400.0, 3213],
+                [1541520000.0, 3650],
+                [1541523600.0, 3096],
+                [1541527200.0, 3845],
+                [1541530800.0, 3545],
+                [1541534400.0, 2880],
+                [1541538000.0, 4057]
+              ]
+            }
+          },
+          "400": {
+            "description": "Invalid organization_slug or team_slug values."
+          }
+        },
+        "security": [{ "auth_token": [] }]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "auth_token": { "type": "apiKey", "name": "Auth Token", "in": "header" }
+  },
+  "definitions": {
+    "Avatar": {
+      "type": "object",
+      "properties": {
+        "avatarType": { "type": "string", "example": "letter_avatar" },
+        "avatarUuid": { "type": "string", "example": null }
+      }
+    },
+    "Project": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "$ref": "#/definitions/Avatar"
+        },
+        "color": { "type": "string", "example": "#bf5b3f" },
+        "dateCreated": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2018-11-06T21:19:58.536Z"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "releases",
+            "sample-events",
+            "minidump",
+            "servicehooks",
+            "rate-limits",
+            "data-forwarding"
+          ]
+        },
+        "firstEvent": { "type": "object", "example": null },
+        "hasAccess": { "type": "boolean", "example": true },
+        "id": { "type": "string", "example": "4" },
+        "isBookmarked": { "type": "boolean", "example": false },
+        "isInternal": { "type": "boolean", "example": false },
+        "isMember": { "type": "boolean", "example": true },
+        "isPublic": { "type": "boolean", "example": false },
+        "name": { "type": "string", "example": "Prime Mover" },
+        "platform": { "type": "string", "example": "python" },
+        "slug": { "type": "string", "example": "prime-mover" },
+        "status": { "type": "string", "example": "active" }
+      }
+    },
+    "OrganizationStatus": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "active" },
+        "name": { "type": "string", "example": "active" }
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "$ref": "#/definitions/Avatar"
+        },
+        "dateCreated": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2018-11-06T21:20:08.115Z"
+        },
+        "id": { "type": "string", "example": "3" },
+        "isEarlyAdopter": { "type": "boolean", "example": false },
+        "name": {
+          "type": "string",
+          "example": "The Interstellar Jurisdiction"
+        },
+        "require2FA": { "type": "boolean", "example": false },
+        "slug": {
+          "type": "string",
+          "example": "the-interstellar-jurisdiction"
+        },
+        "status": {
+          "$ref": "#/definitions/OrganizationStatus"
+        }
+      }
+    },
+    "Team": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "$ref": "#/definitions/Avatar"
+        },
+        "dateCreated": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2018-11-06T21:20:08.115Z"
+        },
+        "hasAccess": { "type": "boolean", "example": true },
+        "id": { "type": "string", "example": "3" },
+        "isMember": { "type": "boolean", "example": true },
+        "isPending": { "type": "boolean", "example": false },
+        "memberCount": { "type": "integer", "format": "int64", "example": 1 },
+        "organization": { "$ref": "#/definitions/Organization" },
+        "name": { "type": "string", "example": "Ancient Gabelers" },
+        "projects": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Project" }
+        },
+        "slug": { "type": "string", "example": "ancient-gabelers" }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}
