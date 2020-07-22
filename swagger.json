@@ -84,6 +84,18 @@
                   "description": "The optional slug for this team. If not provided it will be auto generated from the name",
                   "type": "string",
                   "example": "ancient-gabelers"
+                },
+                "projects": {
+                  "description": "The slugs of projects associated with this new team.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "chocolate-wrapper",
+                    "ginger-cookie",
+                    "purple-notebook"
+                  ]
                 }
               }
             },
