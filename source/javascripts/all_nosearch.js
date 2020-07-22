@@ -22,21 +22,13 @@ $(function () {
   adjustLanguageSelectorWidth();
 
   // Try Button
-  let matches = document.querySelectorAll(".content blockquote > p");
-  for (const match of matches) {
+  var matches = document.querySelectorAll(".content blockquote > p");
+  for (var i = 0; i < matches.length; i++) {
+    var match = matches[i];
     if (match.innerText === "Code samples") {
       match.parentNode.insertAdjacentHTML(
         "afterbegin",
-        `<div style="display: flex;
-        justify-content: space-between;
-        padding: 13px 2em;
-      ">${match.innerHTML}<button style="
-      background: green;
-      border: none;
-      padding: 5px;
-      border-radius: 4px;
-      class="try-it-out-button"
-      ">Try it out!</button></div>`
+        '<div style="display: flex;justify-content: space-between;padding: 13px 2em;">${match.innerHTML}<button style="background: green;border: none;padding: 5px;border-radius: 4px;class="try-it-out-button">Try it out!</button></div>'
       );
 
       match.remove();
